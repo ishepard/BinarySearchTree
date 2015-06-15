@@ -48,7 +48,7 @@ public class BinarySearchTree {
 			gp = p;
 			p = (Internal) l;
 			gpupdate = pupdate;
-			pupdate = p.getUpdate();
+			pupdate = p.update.get();
 			if (key < l.getKey()){
 				l = p.left.get();
 			} else {
@@ -80,17 +80,19 @@ public class BinarySearchTree {
 //			System.out.println(thread.getName() + " search " + key + ", with result\n" + search_result.toString());
 			Leaf l = (Leaf) search_result.l;
 			Internal p = search_result.p;
-			int[] state = new int[1];
-			Info info = search_result.pupdate.update.get(state);
+			Update pupdate = search_result.pupdate;
 			// int state = pupdate.update.getStamp();
 			// Info info = pupdate.update.getReference();
 
 			// Cannot insert duplicate key
-			if (l.key == key)
+			if (l.key == key){
+				System.out.println("Key already exist");
 				return false;
+			}
 			// Help the other operation
-			if (state[0] != 0){
-				help(info, state);
+			if (pupdate.state != "CLEAN"){
+				System.out.println("Found pupdate.state != Clean, calling help!");
+				help(pupdate);
 			} else {
 				newSibling = new Leaf(l.key);
 				if (new_leaf.key < newSibling.key){
@@ -99,16 +101,16 @@ public class BinarySearchTree {
 					newInternal = new Internal(Math.max(key, l.key), new Update(), newSibling, new_leaf);
 				}
 				op = new IInfo(p, newInternal, l);
+				Update new_update = new Update("CLEAN", op);
 				// iflag CAS
 				// TODO: the CAS it must return the old value of p.update
-				boolean result_cas = p.update.update.compareAndSet(info, op, state[0], 1);
-				if (result_cas){
+				boolean cas_result = p.update.compareAndSet(pupdate, new_update);
+				if (cas_result){
 					helpInsert(op);
 					return true;
 				} else {
 					System.out.println("CAS failed");
-					Info new_info = search_result.pupdate.update.get(state);
-					help(new_info, state);
+					help(p.update.get());
 				}
 			}
 			
@@ -116,13 +118,15 @@ public class BinarySearchTree {
 	}
 	
 	public void helpInsert(IInfo op){
+		Update old_update = new Update("IFLAG", op);
+		Update new_update = new Update("CLEAN", op);
 		casChild(op.p, op.l, op.newInterval);
-		op.p.update.update.compareAndSet(op, op, 1, 0);
+		op.p.update.compareAndSet(old_update, new_update);
 	}
 	
-	public void help(Info info, int[] state){
-		if (state[0] == 1){
-			helpInsert((IInfo) info);
+	public void help(Update u){
+		if (u.state == "IFLAG"){
+			helpInsert((IInfo)u.info);
 		}
 	}
 	
@@ -133,6 +137,58 @@ public class BinarySearchTree {
 		} else {
 			parent.right.compareAndSet(old, new_node);
 		}
+	}
+	
+	public boolean delete(int key){
+		while (true){
+			SearchResult search_result = search(key);
+			Leaf l = (Leaf) search_result.l;
+			Internal p = search_result.p;
+			Internal gp = search_result.gp;
+			Update pupdate = search_result.pupdate;
+			Update gpupdate = search_result.gpupdate;
+			
+			if (l.key != key){
+				return false;
+			}
+			if (gpupdate.state != "CLEAN"){
+				help(gpupdate);
+			} else if (pupdate.state != "CLEAN"){
+				help(pupdate);
+			} else {
+				DInfo op = new DInfo(gp, p, l, pupdate);
+				boolean cas_result = gp.update.compareAndSet(gpupdate, new Update("DFLAG", op));
+				if (cas_result){
+					if (helpDelete(op))
+						return true;
+				} else {
+					help(gp.update.get());
+				}
+			}
+		}
+	}
+	
+	public boolean helpDelete(DInfo op){
+		boolean cas_result = op.p.update.compareAndSet(op.pupdate, new Update("MARK", op));
+		if (cas_result){
+			helpMarked(op);
+			return true;
+		} else {
+			help(op.p.update.get());
+			op.gp.update.compareAndSet(new Update("DFLAG", op), new Update("CLEAN", op));
+			return false;
+		}
+	}
+	
+	public void helpMarked(DInfo op){
+		Node other;
+		if (op.p.right.get() == op.l){
+			other = op.p.left.get();
+		} else {
+			other = op.p.right.get();
+		}
+		casChild(op.gp, op.p, other);
+		op.gp.update.compareAndSet(new Update("DFLAG", op), new Update("CLEAN", op));
 	}
 	
 	public void printTree(){

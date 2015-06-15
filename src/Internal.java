@@ -1,31 +1,31 @@
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Internal extends Node{
-	Update update;
+	AtomicReference<Update> update;
 	AtomicReference<Node> left;
 	AtomicReference<Node> right;
 
 	public Internal(int key, Update update, Node left, Node right) {
 		super(key);
-		this.update = update;
+		this.update = new AtomicReference<Update>(update);
 		this.left = new AtomicReference<Node>(left);
 		this.right = new AtomicReference<Node>(right);
 	}
 	
 	public Internal() {
 		super();
-		this.update = null;
+		this.update = new AtomicReference<Update>(null);
 		this.left = new AtomicReference<Node>(null);
 		this.right = new AtomicReference<Node>(null);
 	}
 
-	public Update getUpdate() {
-		return update;
-	}
-
-	public void setUpdate(Update update) {
-		this.update = update;
-	}
+//	public Update getUpdate() {
+//		return update;
+//	}
+//
+//	public void setUpdate(Update update) {
+//		this.update = update;
+//	}
 
 	public AtomicReference<Node> getLeft() {
 		return left;

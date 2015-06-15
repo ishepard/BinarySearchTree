@@ -1,4 +1,3 @@
-import java.util.concurrent.atomic.AtomicStampedReference;
 
 public class Update {
 	// AtomicStampedReference: reference to an object of Type Info and 
@@ -7,15 +6,18 @@ public class Update {
 	// 1: DFLAG
 	// 2: IFLAG
 	// 3: MARK
-	final static int CLEAN = 0, DFLAG = 1, IFLAG = 2, MARK = 3;
-	AtomicStampedReference<Info> update;
+	String state;
+	Info info;
 	
-	public Update(Info info, int stamp) {
+	public Update(String state, Info info) {
 		super();
-		this.update = new AtomicStampedReference<Info>(info, stamp);
+		this.state = state;
+		this.info = info;
 	}
 
-	public Update(){
-		update = new AtomicStampedReference<Info>(null, CLEAN);
+	public Update() {
+		super();
+		this.state = "CLEAN";
+		this.info = null;
 	}
 }

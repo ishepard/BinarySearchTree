@@ -25,6 +25,7 @@ public class Main {
 		list_t2.add(new Actions("insert", 8));
 		list_t2.add(new Actions("insert", 3));
 		list_t2.add(new Actions("insert", 4));
+		list_t2.add(new Actions("delete", 1));
         
 		Thread t1 = new Thread(new TreeThread(bst, list_t1));
 		Thread t2 = new Thread(new TreeThread(bst, list_t2));

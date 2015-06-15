@@ -21,6 +21,10 @@ public class TreeThread implements Runnable{
 			    	System.out.println(thread.getName() + " tring to insert " + act.value);
 			    	bst.insert(act.value);
 			    	break;
+			    case "delete":
+			    	System.out.println(thread.getName() + " tring to deleting " + act.value);
+			    	bst.delete(act.value);
+			    	break;
 			    default:
 		             throw new IllegalArgumentException("Invalid Argument");
 			}
