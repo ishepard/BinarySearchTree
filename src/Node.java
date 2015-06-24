@@ -1,7 +1,7 @@
 import java.util.Random;
 
 public class Node {
-	int key;
+	final int key;
 	Random rn = new Random();
 
 	public Node(int key) {
@@ -15,10 +15,6 @@ public class Node {
 
 	public int getKey() {
 		return key;
-	}
-
-	public void setKey(int key) {
-		this.key = key;
 	}
 
 }

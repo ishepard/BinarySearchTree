@@ -19,14 +19,6 @@ public class Internal extends Node{
 		this.right = new AtomicReference<Node>(null);
 	}
 
-//	public Update getUpdate() {
-//		return update;
-//	}
-//
-//	public void setUpdate(Update update) {
-//		this.update = update;
-//	}
-
 	public AtomicReference<Node> getLeft() {
 		return left;
 	}

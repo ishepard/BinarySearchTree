@@ -8,10 +8,6 @@ public class Leaf extends Node{
 		super(key);
 	}
 
-	public Leaf() {
-		key = rn.nextInt();
-	}
-
 	@Override
 	public String toString() {
 		return "Leaf " + key;

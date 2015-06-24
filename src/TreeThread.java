@@ -25,9 +25,19 @@ public class TreeThread implements Runnable{
 			    	System.out.println(thread.getName() + " tring to deleting " + act.value);
 			    	bst.delete(act.value);
 			    	break;
+			    case "find":
+			    	System.out.println(thread.getName() + " tring to find " + act.value);
+			    	Leaf f = bst.find(act.value);
+			    	if (f instanceof Leaf){
+			    		System.out.println("Found key " + f.key);
+			    	} else {
+			    		System.out.println("No key " + act.value + " found");
+			    	}
+			    	break;
 			    default:
 		             throw new IllegalArgumentException("Invalid Argument");
 			}
+//			System.out.println(thread.getName() + " found tree: " + bst.Root.toString());
 //			bst.printTree();
         }
 	}

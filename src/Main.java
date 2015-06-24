@@ -26,16 +26,18 @@ public class Main {
 		list_t2.add(new Actions("insert", 3));
 		list_t2.add(new Actions("insert", 4));
 		list_t2.add(new Actions("delete", 1));
+		list_t2.add(new Actions("find", 1));
         
 		Thread t1 = new Thread(new TreeThread(bst, list_t1));
 		Thread t2 = new Thread(new TreeThread(bst, list_t2));
 
 		t1.start();
 		t2.start();
-
+		
 		t1.join();
 		t2.join();
 		
+		System.out.println("Finished the job");
 		bst.printTree();
 		
 		

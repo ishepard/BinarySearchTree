@@ -13,12 +13,6 @@ class SearchResult{
 		this.pupdate = pupdate;
 		this.gpupdate = gpupdate;
 	}
-
-	@Override
-	public String toString() {
-		return "SearchResult [gp=" + gp + ", p=" + p + ", l=" + l
-				+ ", pupdate=" + pupdate + ", gpupdate=" + gpupdate + "]";
-	}
 };
 
 public class BinarySearchTree {
@@ -29,7 +23,6 @@ public class BinarySearchTree {
 	Leaf dummy_2;
 	Internal Root;
 
-	
 	public BinarySearchTree() {
 		this.update_root = new Update();
 		this.dummy_1 = new Leaf(Integer.MAX_VALUE - 1);
@@ -73,16 +66,13 @@ public class BinarySearchTree {
 		Leaf newSibling;
 		Leaf new_leaf = new Leaf(key);  
 		IInfo op;
+		Thread thread = Thread.currentThread();
 		
 		while (true){
 			SearchResult search_result = search(key);
-//			Thread thread = Thread.currentThread();
-//			System.out.println(thread.getName() + " search " + key + ", with result\n" + search_result.toString());
 			Leaf l = (Leaf) search_result.l;
 			Internal p = search_result.p;
 			Update pupdate = search_result.pupdate;
-			// int state = pupdate.update.getStamp();
-			// Info info = pupdate.update.getReference();
 
 			// Cannot insert duplicate key
 			if (l.key == key){
@@ -91,7 +81,7 @@ public class BinarySearchTree {
 			}
 			// Help the other operation
 			if (pupdate.state != "CLEAN"){
-				System.out.println("Found pupdate.state != Clean, calling help!");
+				System.out.println("INSERT " + key + ": found pupdate.state != Clean, calling help!");
 				help(pupdate);
 			} else {
 				newSibling = new Leaf(l.key);
@@ -102,14 +92,14 @@ public class BinarySearchTree {
 				}
 				op = new IInfo(p, newInternal, l);
 				Update new_update = new Update("CLEAN", op);
+
 				// iflag CAS
-				// TODO: the CAS it must return the old value of p.update
 				boolean cas_result = p.update.compareAndSet(pupdate, new_update);
 				if (cas_result){
 					helpInsert(op);
+					System.out.println(thread.getName() + " inserted correctly key " + key);
 					return true;
 				} else {
-					System.out.println("CAS failed");
 					help(p.update.get());
 				}
 			}
@@ -118,15 +108,22 @@ public class BinarySearchTree {
 	}
 	
 	public void helpInsert(IInfo op){
-		Update old_update = new Update("IFLAG", op);
+		Update old_update = op.p.update.get();
 		Update new_update = new Update("CLEAN", op);
 		casChild(op.p, op.l, op.newInterval);
-		op.p.update.compareAndSet(old_update, new_update);
+		if (old_update.state == "IFLAG" && old_update.info == op){
+			op.p.update.compareAndSet(old_update, new_update);
+		}
 	}
 	
 	public void help(Update u){
+		System.out.println(u.state);
 		if (u.state == "IFLAG"){
-			helpInsert((IInfo)u.info);
+			helpInsert((IInfo) u.info);
+		} else if (u.state == "MARK"){
+			helpMarked((DInfo) u.info);
+		} else if (u.state == "DFLAG"){
+			helpDelete((DInfo) u.info);
 		}
 	}
 	
@@ -140,6 +137,8 @@ public class BinarySearchTree {
 	}
 	
 	public boolean delete(int key){
+		Thread thread = Thread.currentThread();
+		
 		while (true){
 			SearchResult search_result = search(key);
 			Leaf l = (Leaf) search_result.l;
@@ -148,18 +147,23 @@ public class BinarySearchTree {
 			Update pupdate = search_result.pupdate;
 			Update gpupdate = search_result.gpupdate;
 			
+			// TODO: check if key is root or dummy
 			if (l.key != key){
+				System.out.println(thread.getName() + " not found key " + key);
 				return false;
 			}
 			if (gpupdate.state != "CLEAN"){
+//				System.out.println("DELETE " + key + ": found gpupdate.state != Clean, calling help!");
 				help(gpupdate);
 			} else if (pupdate.state != "CLEAN"){
+//				System.out.println("DELETE " + key + ": found pupdate.state != Clean, calling help!");
 				help(pupdate);
 			} else {
 				DInfo op = new DInfo(gp, p, l, pupdate);
 				boolean cas_result = gp.update.compareAndSet(gpupdate, new Update("DFLAG", op));
 				if (cas_result){
 					if (helpDelete(op))
+						System.out.println(thread.getName() + " deleted correctly key " + key);
 						return true;
 				} else {
 					help(gp.update.get());
@@ -169,18 +173,25 @@ public class BinarySearchTree {
 	}
 	
 	public boolean helpDelete(DInfo op){
-		boolean cas_result = op.p.update.compareAndSet(op.pupdate, new Update("MARK", op));
+		Update old_gp_update = op.gp.update.get();
+		Update new_gp_update = new Update("CLEAN", op);
+		Update new_update_mark = new Update("MARK", op);
+		boolean cas_result = op.p.update.compareAndSet(op.pupdate, new_update_mark);
 		if (cas_result){
 			helpMarked(op);
 			return true;
 		} else {
 			help(op.p.update.get());
-			op.gp.update.compareAndSet(new Update("DFLAG", op), new Update("CLEAN", op));
+			if (old_gp_update.state == "DFLAG" && old_gp_update.info == op){
+				op.gp.update.compareAndSet(old_gp_update, new_gp_update);
+			}
 			return false;
 		}
 	}
 	
 	public void helpMarked(DInfo op){
+		Update old_gp_update = op.gp.update.get();
+		Update new_gp_update = new Update("CLEAN", op);
 		Node other;
 		if (op.p.right.get() == op.l){
 			other = op.p.left.get();
@@ -188,9 +199,11 @@ public class BinarySearchTree {
 			other = op.p.right.get();
 		}
 		casChild(op.gp, op.p, other);
-		op.gp.update.compareAndSet(new Update("DFLAG", op), new Update("CLEAN", op));
+		if (old_gp_update.state == "DFLAG" && old_gp_update.info == op){
+			op.gp.update.compareAndSet(old_gp_update, new_gp_update);
+		}
 	}
-	
+
 	public void printTree(){
 		System.out.println(Root.toString());
 	}
