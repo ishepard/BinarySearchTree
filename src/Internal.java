@@ -39,5 +39,5 @@ public class Internal extends Node{
 	public String toString() {
 		return "Node(" + key + ", " + left.toString() + ", "
 				+ right.toString() + ")";
-	}	
+	}
 }

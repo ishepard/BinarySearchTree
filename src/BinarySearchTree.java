@@ -207,5 +207,19 @@ public class BinarySearchTree {
 	public void printTree(){
 		System.out.println(Root.toString());
 	}
+	
+	public void toDot(Node i){
+		if (i instanceof Internal){
+			Internal l = (Internal) i;
+			if (l.left.get() != null){
+				System.out.println(l.key + " -> " + l.left.get().key + ";");
+				toDot((Node) l.left.get());
+			}
+			if (l.right.get() != null){
+				System.out.println(l.key + " -> " + l.right.get().key + ";");
+				toDot((Node) l.right.get());
+			}
+		}
+	}
 
 }
