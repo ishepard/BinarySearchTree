@@ -11,6 +11,15 @@ class Actions {
 	}
 }
 
+/**
+ * Main of the BinarySearchTree. In order to test it, I create 5 threads and each one has to
+ * insert, delete or find some keys concurrently. At the end of the main I print the tree.
+ * For other informations, @see BinarySearchTree documentation
+ * 
+ * @author Davide Spadini
+ *
+ */
+
 public class Main {
 
 	public static void main(String[] args) throws InterruptedException {
@@ -47,7 +56,7 @@ public class Main {
 		list_t5.add(new Actions("insert", 15));
 		list_t5.add(new Actions("insert", 25));
 		list_t5.add(new Actions("insert", 35));
-		list_t5.add(new Actions("delete", 45));
+		list_t5.add(new Actions("delete", 25));
 		list_t5.add(new Actions("find", 8));
         
 		Thread t1 = new Thread(new TreeThread(bst, list_t1));
@@ -68,10 +77,14 @@ public class Main {
 		t4.join();
 		t5.join();
 
-		System.out.println("Finished the job");
 		bst.printTree();
 		
-		bst.toDot(bst.Root);
+		try {
+			bst.createDotGraph();
+		} catch (Exception exc){
+			System.out.println(exc.toString());
+		}
+		
 	}
 
 }

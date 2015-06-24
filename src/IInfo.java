@@ -1,4 +1,11 @@
-
+/**
+ * Class that stores the necessary informations to complete an insert.
+ * Specifically, the leaf that is to be replaced, that leaf's parent and 
+ * the newly created subtree that will be used to replace the leaf.
+ * 
+ * @author Davide Spadini
+ *
+ */
 
 public class IInfo extends Info{
 	Internal p;

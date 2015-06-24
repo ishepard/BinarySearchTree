@@ -1,3 +1,4 @@
+import java.io.PrintWriter;
 
 class SearchResult{
 	Internal gp, p;
@@ -15,6 +16,19 @@ class SearchResult{
 	}
 };
 
+/**
+ * BinarySearchTree class is the main class of our concurrent Binary Search Tree.
+ * It provides three principle methods: find(key), insert(key), delete(key). This implementation 
+ * is non-blocking: starting from any configuration of any infinite asynchronous execution, 
+ * with any number of crash failures, some operation always completes. 
+ * There are also two possibilities to print the tree:
+ * 1) OCaml syntax;
+ * 2) dot format;
+ * 
+ * @author Spadini Davide
+ * @version 1
+ */
+
 public class BinarySearchTree {
 	
 	// Create Root, shared variable
@@ -22,7 +36,10 @@ public class BinarySearchTree {
 	Leaf dummy_1;
 	Leaf dummy_2;
 	Internal Root;
-
+	
+	/**
+	 *  Initialize the BinarySearchTree Root
+	 */
 	public BinarySearchTree() {
 		this.update_root = new Update();
 		this.dummy_1 = new Leaf(Integer.MAX_VALUE - 1);
@@ -30,6 +47,12 @@ public class BinarySearchTree {
 		this.Root = new Internal(Integer.MAX_VALUE, update_root, dummy_1, dummy_2);
 	}
 
+	/**
+	 * Used by Insert, Delete and Find to traverse the BST searching (if it exists) the key.
+	 * 
+	 * @param key Key to search
+	 * @return SearchResult Structure containing the leaf, and other informations about the parent and grandparent of it 
+	 */
 	public SearchResult search(int key){
 		Internal gp = null;
 		Internal p = null;
@@ -52,6 +75,12 @@ public class BinarySearchTree {
 		return new SearchResult(gp, p, l, pupdate, gpupdate);
 	}
 	
+	/**
+	 * Used to find the key.
+	 * 
+	 * @param key	Key to search
+	 * @return 		The corresponding leaf if the key is in the tree, null otherwise
+	 */
 	public Leaf find(int key){
 		SearchResult res = search(key);
 		if (res.l.key == key)
@@ -60,7 +89,17 @@ public class BinarySearchTree {
 			return null;
 	}
 	
-	// Insert a new Key in the tree
+	/**
+	 * Used to insert the key. First of all it checks if the key already exists (duplicated keys are not admitted in the search tree),
+	 * then it checks if there are other pending operations, in this case it tries to complete them, otherwise
+	 * it builds a new structure with the key. 
+	 * After that it tries to change the state of its parent to "IFLAG", if this fails it 
+	 * helps the operation that has flagged or marked the parent, if any, and begins a new attempt. If the "IFLAG" succeeds, 
+	 * the rest of the insertion is done by HelpInsert.
+	 * 
+	 * @param key	Key to insert
+	 * @return		true if it succeeds, false otherwise
+	 */
 	public boolean insert(int key){
 		Internal newInternal;
 		Leaf newSibling;
@@ -81,7 +120,6 @@ public class BinarySearchTree {
 			}
 			// Help the other operation
 			if (pupdate.state != "CLEAN"){
-				System.out.println("INSERT " + key + ": found pupdate.state != Clean, calling help!");
 				help(pupdate);
 			} else {
 				newSibling = new Leaf(l.key);
@@ -91,7 +129,7 @@ public class BinarySearchTree {
 					newInternal = new Internal(Math.max(key, l.key), new Update(), newSibling, new_leaf);
 				}
 				op = new IInfo(p, newInternal, l);
-				Update new_update = new Update("CLEAN", op);
+				Update new_update = new Update("IFLAG", op);
 
 				// iflag CAS
 				boolean cas_result = p.update.compareAndSet(pupdate, new_update);
@@ -107,6 +145,13 @@ public class BinarySearchTree {
 		}
 	}
 	
+	/**
+	 * Used by the insert function in order to complete the insertion of a key.
+	 * It attempts to change the appropriate child pointer of the parent 
+	 * and it resets to "CLEAN" its update field.
+	 * 
+	 * @param op	IInfo record that carries on the necessary information for the completion of the insert
+	 */
 	public void helpInsert(IInfo op){
 		Update old_update = op.p.update.get();
 		Update new_update = new Update("CLEAN", op);
@@ -116,8 +161,14 @@ public class BinarySearchTree {
 		}
 	}
 	
+	/**
+	 * General-purpose helping routine. This method checks the state field of the Update
+	 * and calls the corresponding function in order to help and possibly finish the pending operation
+	 * 
+	 * @param u	Contains the state and the info record of the pending operation
+	 */
+	
 	public void help(Update u){
-		System.out.println(u.state);
 		if (u.state == "IFLAG"){
 			helpInsert((IInfo) u.info);
 		} else if (u.state == "MARK"){
@@ -127,6 +178,15 @@ public class BinarySearchTree {
 		}
 	}
 	
+	/**
+	 * Atomically swap the pointer of the parent from the old node to the new one.
+	 * Furthermore, it determines whether to change the left or right child of the parent, 
+	 * depending on the key values.
+	 * 
+	 * @param parent	Parent node
+	 * @param old	Old node
+	 * @param new_node	New node
+	 */
 	public void casChild(Internal parent, Node old, Node new_node){
 		// Tries to change one of the child fields of the node that parent points to from old to new.
 		if (new_node.key < parent.key){
@@ -136,6 +196,25 @@ public class BinarySearchTree {
 		}
 	}
 	
+	/**
+	 * Used to delete a key. It first calls the search methods to find the leaf to be deleted 
+	 * (and its parent and grandparent). If it fails to find the key returns False. If it finds 
+	 * that some other operation has already flagged or marked the parent or grandparent, 
+	 * it helps that operation complete and then begins over with a new attempt. Otherwise, 
+	 * it creates a new DInfo record containing the necessary information and attempts to set the flag 
+	 * of the grandparent to "DFLAG". If this fails, it helps the operation that has flagged or 
+	 * marked the grandparent, if any, and then begins a new attempt. If the "DFLAG" is successful,
+	 * the remainder of the deletion is carried out by HelpDelete.
+	 * 
+	 * However, it is possible that the attempted deletion will fail to complete even after the 
+	 * grandparent is flagged (if some other operation has changed the parent’s state and info 
+	 * fields before it can be marked), so HelpDelete returns a boolean value that describes 
+	 * whether the deletion was successfully completed. If it is successful, it returns True; 
+	 * otherwise, it tries again.
+	 * 
+	 * @param key	Key to delete
+	 * @return		true if it succeeds, false otherwise
+	 */
 	public boolean delete(int key){
 		Thread thread = Thread.currentThread();
 		
@@ -147,16 +226,13 @@ public class BinarySearchTree {
 			Update pupdate = search_result.pupdate;
 			Update gpupdate = search_result.gpupdate;
 			
-			// TODO: check if key is root or dummy
 			if (l.key != key){
 				System.out.println(thread.getName() + " not found key " + key);
 				return false;
 			}
 			if (gpupdate.state != "CLEAN"){
-//				System.out.println("DELETE " + key + ": found gpupdate.state != Clean, calling help!");
 				help(gpupdate);
 			} else if (pupdate.state != "CLEAN"){
-//				System.out.println("DELETE " + key + ": found pupdate.state != Clean, calling help!");
 				help(pupdate);
 			} else {
 				DInfo op = new DInfo(gp, p, l, pupdate);
@@ -171,6 +247,17 @@ public class BinarySearchTree {
 			}
 		}
 	}
+	
+	/**
+	 * Used by the delete function in order to proceed with the deletion of a key.
+	 * First it attempts to mark the parent of the leaf to be deleted, if it is
+	 * successful, the remainder of the deletion is carried out by HelpMarked, otherwise it helps 
+	 * the operation that flagged the parent node and performs a backtrack: it removes the flag 
+	 * from the grandparent.
+	 * 
+	 * @param op	DInfo record that carries on the necessary information for the completion of the delete
+	 * @return		true if it marks the parent correctly and the operation can go on, false otherwise
+	 */
 	
 	public boolean helpDelete(DInfo op){
 		Update old_gp_update = op.gp.update.get();
@@ -189,6 +276,14 @@ public class BinarySearchTree {
 		}
 	}
 	
+	/**
+	 * Used by the helpDelete in order to complete the deletion of a key.
+	 * It changes the appropriate child pointer of the grandparent and it resets 
+	 * to "CLEAN" its update field.
+	 * 
+	 * @param op	DInfo record that carries on the necessary information for the completion of the delete
+	 */
+	
 	public void helpMarked(DInfo op){
 		Update old_gp_update = op.gp.update.get();
 		Update new_gp_update = new Update("CLEAN", op);
@@ -203,22 +298,63 @@ public class BinarySearchTree {
 			op.gp.update.compareAndSet(old_gp_update, new_gp_update);
 		}
 	}
+	
+	/**
+	 * Print the current tree in OCaml syntax
+	 * 
+	 */
 
 	public void printTree(){
 		System.out.println(Root.toString());
 	}
 	
-	public void toDot(Node i){
+	/**
+	 * Print the current tree in dot (graph description language). It saves the result
+	 * in the external file tree.dot.
+	 * 
+	 */
+	
+	public void createDotGraph(){
+		PrintWriter out = null;
+		try {
+			out = new PrintWriter("tree.dot");
+			out.write("digraph graphname {\n");
+			toDot(Root, out);
+			out.write("}");
+	    }catch (Exception e){
+	    	System.out.println(e);
+	    } finally {
+	    	out.close();
+      }
+	}
+	
+	/**
+	 * Used by createDotGraph: recursively print the left and right child of the node.
+	 * 
+	 * @param i		Current node
+	 * @param out	File in which the function has to write.
+	 */
+	public void toDot(Node i, PrintWriter out){
 		if (i instanceof Internal){
 			Internal l = (Internal) i;
 			if (l.left.get() != null){
-				System.out.println(l.key + " -> " + l.left.get().key + ";");
-				toDot((Node) l.left.get());
+				if (l.left.get() instanceof Leaf){
+					out.write(l.key + " -> \"Leaf " + l.left.get().key + "\";\n");
+				} else {
+					out.write(l.key + " -> " + l.left.get().key + ";\n");
+				}
+				toDot((Node) l.left.get(), out);
 			}
 			if (l.right.get() != null){
-				System.out.println(l.key + " -> " + l.right.get().key + ";");
-				toDot((Node) l.right.get());
+				if (l.right.get() instanceof Leaf){
+					out.write(l.key + " -> \"Leaf " + l.right.get().key + "\";\n");
+				} else{
+					out.write(l.key + " -> " + l.right.get().key + ";\n");
+				}
+				toDot((Node) l.right.get(), out);
 			}
+		} else if (i instanceof Leaf){
+			out.write("\"Leaf " + i.key + "\"\t[shape=box, regular=1, color=\"blue\"];\n");
 		}
 	}
 

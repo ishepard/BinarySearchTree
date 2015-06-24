@@ -1,5 +1,10 @@
 import java.util.List;
-
+/**
+ * This class contains the code executed by the threads.
+ * 
+ * @author Davide Spadini
+ *
+ */
 
 public class TreeThread implements Runnable{
 	BinarySearchTree bst;
@@ -11,6 +16,11 @@ public class TreeThread implements Runnable{
 		this.bst = bst;
 	}
 
+	/**
+	 * Code executed by the threads. It checks which operation has to do, and it calls
+	 * the relative function (insert, delete or find) on the binary search tree.
+	 * 
+	 */
 
 	public void run(){
 		Thread thread = Thread.currentThread();
@@ -37,8 +47,6 @@ public class TreeThread implements Runnable{
 			    default:
 		             throw new IllegalArgumentException("Invalid Argument");
 			}
-//			System.out.println(thread.getName() + " found tree: " + bst.Root.toString());
-//			bst.printTree();
         }
 	}
 }

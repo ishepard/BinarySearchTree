@@ -1,5 +1,14 @@
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Class of the internal node of the tree. It has tree AtomicReference: one for the left child,
+ * one for the right child, one for the Update field. Furthermore it has the variable key,
+ * inherited from the superclass Node.
+ * 
+ * @author Davide Spadini
+ *
+ */
+
 public class Internal extends Node{
 	AtomicReference<Update> update;
 	AtomicReference<Node> left;

@@ -1,4 +1,10 @@
 import java.util.Random;
+/**
+ * Superclass of Leaf and Internal class. It contains the key of the node.
+ * 
+ * @author Davide Spadini
+ *
+ */
 
 public class Node {
 	final int key;
