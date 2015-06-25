@@ -39,9 +39,9 @@ public class TreeThread implements Runnable{
 			    	System.out.println(thread.getName() + " tring to find " + act.value);
 			    	Leaf f = bst.find(act.value);
 			    	if (f instanceof Leaf){
-			    		System.out.println("Found key " + f.key);
+			    		System.out.println(thread.getName() + " has found key " + f.key);
 			    	} else {
-			    		System.out.println("No key " + act.value + " found");
+			    		System.out.println(thread.getName() + " didn't found key " + act.value + " found");
 			    	}
 			    	break;
 			    default:

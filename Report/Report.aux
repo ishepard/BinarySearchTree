@@ -1,0 +1,66 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyperFirstAtBeginDocument{\AtBeginDocument}
+\HyperFirstAtBeginDocument{\ifx\hyper@anchor\@undefined
+\global\let\oldcontentsline\contentsline
+\gdef\contentsline#1#2#3#4{\oldcontentsline{#1}{#2}{#3}}
+\global\let\oldnewlabel\newlabel
+\gdef\newlabel#1#2{\newlabelxx{#1}#2}
+\gdef\newlabelxx#1#2#3#4#5#6{\oldnewlabel{#1}{{#2}{#3}}}
+\AtEndDocument{\ifx\hyper@anchor\@undefined
+\let\contentsline\oldcontentsline
+\let\newlabel\oldnewlabel
+\fi}
+\fi}
+\global\let\hyper@last\relax 
+\gdef\HyperFirstAtBeginDocument#1{#1}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{algorithm}
+\citation{proof}
+\citation{models}
+\citation{larrea2013}
+\reset@newl@bel
+\newacro{RPC}[RPC]{Remote Procedure Call}
+\newacro{BST}[BST]{Binary Search Tree}
+\newacro{CLI}[CLI]{Command Line Interface}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}}
+\newlabel{introduction}{{1}{1}{Introduction}{section.1}{}}
+\undonewlabel{acro:BST}
+\newlabel{acro:BST}{{1}{1}{Introduction}{section*.1}{}}
+\acronymused{BST}
+\acronymused{BST}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Usage}{1}{section.2}}
+\newlabel{sec:usage}{{2}{1}{Usage}{section.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Program architecture}{1}{section.3}}
+\newlabel{sec:program_architecture}{{3}{1}{Program architecture}{section.3}{}}
+\citation{fdconsensus}
+\@writefile{toc}{\contentsline {paragraph}{Failure detector}{2}{section*.2}}
+\@writefile{loa}{\contentsline {algocf}{\numberline {1}{\ignorespaces Failure detector algorithm executed by every process $p_i$}}{2}{algocf.1}}
+\@writefile{toc}{\contentsline {paragraph}{Consensus}{2}{section*.3}}
+\@writefile{loa}{\contentsline {algocf}{\numberline {2}{\ignorespaces Consensus algorithm executed by every process $p_i$}}{3}{algocf.2}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Program evaluation}{3}{section.4}}
+\newlabel{sec:program_evaluation}{{4}{3}{Program evaluation}{section.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{Test of correctness}{3}{section*.4}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces \relax \fontsize  {9}{11}\selectfont  \abovedisplayskip 8.5\p@ plus3\p@ minus4\p@ \abovedisplayshortskip \z@ plus2\p@ \belowdisplayshortskip 4\p@ plus2\p@ minus2\p@ \def \leftmargin \leftmargini \parsep 4\p@ plus2\p@ minus\p@ \topsep 8\p@ plus2\p@ minus4\p@ \itemsep 4\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 4\p@ plus2\p@ minus2\p@ \parsep 2\p@ plus\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip {This table describes the scenario 1, in which the failure detectors do not receive the ping from process $0$ within the default time interval, so they increment the delta and elect another leader. Eventually the ping from node $0$ will be delivered and the leader is reset. After this settlement the nodes will converge to a decision. }}}{4}{table.1}}
+\newlabel{table:scenario1}{{1}{4}{\small {This table describes the scenario 1, in which the failure detectors do not receive the ping from process $0$ within the default time interval, so they increment the delta and elect another leader. Eventually the ping from node $0$ will be delivered and the leader is reset. After this settlement the nodes will converge to a decision. }}{table.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces \relax \fontsize  {9}{11}\selectfont  \abovedisplayskip 8.5\p@ plus3\p@ minus4\p@ \abovedisplayshortskip \z@ plus2\p@ \belowdisplayshortskip 4\p@ plus2\p@ minus2\p@ \def \leftmargin \leftmargini \parsep 4\p@ plus2\p@ minus\p@ \topsep 8\p@ plus2\p@ minus4\p@ \itemsep 4\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 4\p@ plus2\p@ minus2\p@ \parsep 2\p@ plus\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip {This table describes the scenario 2, in which node $0$ crashes right after having sent the \emph  {PHASE1} messages. The failure detectors will elect another leader (node $1$) and a new round is started. Eventually they will decide for $1$.}}}{5}{table.2}}
+\newlabel{table:scenario2}{{2}{5}{\small {This table describes the scenario 2, in which node $0$ crashes right after having sent the \emph {PHASE1} messages. The failure detectors will elect another leader (node $1$) and a new round is started. Eventually they will decide for $1$.}}{table.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Loosening the assumptions}{5}{section*.5}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces \relax \fontsize  {9}{11}\selectfont  \abovedisplayskip 8.5\p@ plus3\p@ minus4\p@ \abovedisplayshortskip \z@ plus2\p@ \belowdisplayshortskip 4\p@ plus2\p@ minus2\p@ \def \leftmargin \leftmargini \parsep 4\p@ plus2\p@ minus\p@ \topsep 8\p@ plus2\p@ minus4\p@ \itemsep 4\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 4\p@ plus2\p@ minus2\p@ \parsep 2\p@ plus\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip {Process $0$ stays blocked in \emph  {Phase 2} because it can not receive \emph  {PHASE2} or \emph  {DECIDE} messages, making it unable to decide.}}}{5}{table.3}}
+\newlabel{table:perfect_channel}{{3}{5}{\small {Process $0$ stays blocked in \emph {Phase 2} because it can not receive \emph {PHASE2} or \emph {DECIDE} messages, making it unable to decide.}}{table.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces \relax \fontsize  {9}{11}\selectfont  \abovedisplayskip 8.5\p@ plus3\p@ minus4\p@ \abovedisplayshortskip \z@ plus2\p@ \belowdisplayshortskip 4\p@ plus2\p@ minus2\p@ \def \leftmargin \leftmargini \parsep 4\p@ plus2\p@ minus\p@ \topsep 8\p@ plus2\p@ minus4\p@ \itemsep 4\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 4\p@ plus2\p@ minus2\p@ \parsep 2\p@ plus\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip {The channels keep delaying ping messages sent by process $0$, thus the failure detectors keep increasing the delta. Therefore node $0$ continuously switches between suspected and not suspected and new rounds keep being started.}}}{6}{table.4}}
+\newlabel{table:partially_async}{{4}{6}{\small {The channels keep delaying ping messages sent by process $0$, thus the failure detectors keep increasing the delta. Therefore node $0$ continuously switches between suspected and not suspected and new rounds keep being started.}}{table.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces \relax \fontsize  {9}{11}\selectfont  \abovedisplayskip 8.5\p@ plus3\p@ minus4\p@ \abovedisplayshortskip \z@ plus2\p@ \belowdisplayshortskip 4\p@ plus2\p@ minus2\p@ \def \leftmargin \leftmargini \parsep 4\p@ plus2\p@ minus\p@ \topsep 8\p@ plus2\p@ minus4\p@ \itemsep 4\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 4\p@ plus2\p@ minus2\p@ \parsep 2\p@ plus\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip {Node $0$ sends arbitrary values to the others and everyone will decide differently.}}}{7}{table.5}}
+\newlabel{table:not_byzantine}{{5}{7}{\small {Node $0$ sends arbitrary values to the others and everyone will decide differently.}}{table.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces \relax \fontsize  {9}{11}\selectfont  \abovedisplayskip 8.5\p@ plus3\p@ minus4\p@ \abovedisplayshortskip \z@ plus2\p@ \belowdisplayshortskip 4\p@ plus2\p@ minus2\p@ \def \leftmargin \leftmargini \parsep 4\p@ plus2\p@ minus\p@ \topsep 8\p@ plus2\p@ minus4\p@ \itemsep 4\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 4\p@ plus2\p@ minus2\p@ \parsep 2\p@ plus\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip {The first $3$ processes fail so the remaining one can not pass \emph  {Phase 2} and it will not decide.}}}{7}{table.6}}
+\newlabel{table:max_failures}{{6}{7}{\small {The first $3$ processes fail so the remaining one can not pass \emph {Phase 2} and it will not decide.}}{table.6}{}}
+\bibstyle{plain}
+\bibcite{algorithm}{1}
+\bibcite{proof}{2}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces \relax \fontsize  {9}{11}\selectfont  \abovedisplayskip 8.5\p@ plus3\p@ minus4\p@ \abovedisplayshortskip \z@ plus2\p@ \belowdisplayshortskip 4\p@ plus2\p@ minus2\p@ \def \leftmargin \leftmargini \parsep 4\p@ plus2\p@ minus\p@ \topsep 8\p@ plus2\p@ minus4\p@ \itemsep 4\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 4\p@ plus2\p@ minus2\p@ \parsep 2\p@ plus\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip {Process $0$ crashes and it is not suspected by everyone, therefore they keep waiting for the \emph  {PHASE1} message forever. }}}{8}{table.7}}
+\newlabel{table:failure_detector}{{7}{8}{\small {Process $0$ crashes and it is not suspected by everyone, therefore they keep waiting for the \emph {PHASE1} message forever. }}{table.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces \relax \fontsize  {9}{11}\selectfont  \abovedisplayskip 8.5\p@ plus3\p@ minus4\p@ \abovedisplayshortskip \z@ plus2\p@ \belowdisplayshortskip 4\p@ plus2\p@ minus2\p@ \def \leftmargin \leftmargini \parsep 4\p@ plus2\p@ minus\p@ \topsep 8\p@ plus2\p@ minus4\p@ \itemsep 4\p@ plus2\p@ minus\p@ {\leftmargin \leftmargini \topsep 4\p@ plus2\p@ minus2\p@ \parsep 2\p@ plus\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip {A process can send messages only to its successor, thus nobody can collect enough messages to decide. }}}{8}{table.8}}
+\newlabel{table:fully_connected}{{8}{8}{\small {A process can send messages only to its successor, thus nobody can collect enough messages to decide. }}{table.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusions and further works}{8}{section.5}}
+\newlabel{sec:conclusions}{{5}{8}{Conclusions and further works}{section.5}{}}
