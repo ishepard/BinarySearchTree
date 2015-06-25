@@ -96,8 +96,9 @@ public class BinarySearchTree {
 	
 	/**
 	 * Used to insert the key. First of all it checks if the key already exists (duplicated keys are not admitted in the search tree),
-	 * then it checks if there are other pending operations, in this case it tries to complete them, otherwise
-	 * it builds a new structure with the key. 
+	 * then it checks if there are other pending operations on the same nodes that he needs to 
+	 * operate on, in this case it tries to complete them, otherwise it builds a new structure 
+	 * with the key. 
 	 * After that it tries to change the state of its parent to "IFLAG", if this fails it 
 	 * helps the operation that has flagged or marked the parent, if any, and begins a new attempt. If the "IFLAG" succeeds, 
 	 * the rest of the insertion is done by HelpInsert.
@@ -207,7 +208,7 @@ public class BinarySearchTree {
 	}
 	
 	/**
-	 * Used to delete a key. It first calls the search methods to find the leaf to be deleted 
+	 * Used to delete a key. It first calls the search method to find the leaf to be deleted 
 	 * (and its parent and grandparent). If it fails to find the key returns False. If it finds 
 	 * that some other operation has already flagged or marked the parent or grandparent, 
 	 * it helps that operation complete and then begins over with a new attempt. Otherwise, 

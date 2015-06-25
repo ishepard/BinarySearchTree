@@ -1,0 +1,15 @@
+digraph graphname {
+2147483647 -> 2147483646;
+2147483646 -> 3;
+3 -> "Leaf 2";
+"Leaf 2"	[label=2, shape=box, regular=1, color="blue"];
+3 -> 7;
+7 -> "Leaf 3";
+"Leaf 3"	[label=3, shape=box, regular=1, color="blue"];
+7 -> "Leaf 7";
+"Leaf 7"	[label=7, shape=box, regular=1, color="blue"];
+2147483646 -> "Leaf 2147483646";
+"Leaf 2147483646"	[label=2147483646, shape=box, regular=1, color="blue"];
+2147483647 -> "Leaf 2147483647";
+"Leaf 2147483647"	[label=2147483647, shape=box, regular=1, color="blue"];
+}
