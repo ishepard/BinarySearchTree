@@ -28,15 +28,15 @@ public class TreeThread implements Runnable{
 			// System.out.println("Key is " + act.action + "and value is " + act.value);
 			switch(act.action) {
 			    case "insert":
-			    	System.out.println(thread.getName() + " tring to insert " + act.value);
+			    	System.out.println(thread.getName() + " trying to insert " + act.value);
 			    	bst.insert(act.value);
 			    	break;
 			    case "delete":
-			    	System.out.println(thread.getName() + " tring to deleting " + act.value);
+			    	System.out.println(thread.getName() + " trying to deleting " + act.value);
 			    	bst.delete(act.value);
 			    	break;
 			    case "find":
-			    	System.out.println(thread.getName() + " tring to find " + act.value);
+			    	System.out.println(thread.getName() + " trying to find " + act.value);
 			    	Leaf f = bst.find(act.value);
 			    	if (f instanceof Leaf){
 			    		System.out.println(thread.getName() + " has found key " + f.key);

@@ -70,6 +70,7 @@ In the configuration that is used there are \textbf{5 threads}, concurrently per
 
 \section{Output}
 \label{sec:output}
+When the program starts, each thread prints on the terminal when it starts and ends a new operation (i.e. Thread-1 trying to insert 8, Thread-1 inserted correctly key 8). In this way, we can see the order in which the operation has been performed.
 When all the threads have finished to execute their operations, the program prints the resulting tree in two different formats:
 \begin{compactitem}
   \item \textbf{OCaml syntax} Printed on the terminal
@@ -77,10 +78,12 @@ When all the threads have finished to execute their operations, the program prin
 \end{compactitem}
 
 \noindent
-In order to build the graph starting from the \emph{dot} file, open the terminal in the root directory and launch:
+To build the graph starting from the \emph{dot} file, open the terminal in the root directory and launch:
 
 \verb!dot tree.dot | gvpr -c -ftree.gv | neato -n -Tpng -o binarytree.png!
 \\
+\noindent
+and then open \emph{binarytree.png}. 
 
 In order to obtain a better result, in the command above I used an external script \emph{tree.gv} that enforces the horizontal node ordering.\footnote{All credits of this script goes to \emph{Emden R. Gansner}, script available at \url{https://mailman.research.att.com/pipermail/graphviz-interest/2010q2/007101.html}}
 % \begin{compactitem}
@@ -140,6 +143,7 @@ In order to obtain a better result, in the command above I used an external scri
 \section{Implementation} % (fold)
 \label{sec:implementation}
 As explained before, the aim of this project is to give an implementation of a non-blocking \ac{BST} using the algorithm described in \cite{algorithm}, so I will not discuss the algorithm but only the implementation of it.
+It follows step by step the algorithm, it has the same classes and methods. The only differences or extra method that I implemented are explained in Sec.[\ref{subsec:implementation_details}].
 
 \noindent
 The main classes are the following:
@@ -158,6 +162,7 @@ The main classes are the following:
 Furthermore there are minor class, but for more information I remind the reader to Sec.[\ref{sec:javadoc}]
 
 \subsection{Implementation Details}
+\label{subsec:implementation_details}
 \begin{itemize}
   \item \textbf{\ac{CAS}} The non-blocking algorithm uses \ac{CAS}\footnote{for more details see \url{https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/atomic/AtomicReference.html}} in order to update atomically some information (i.e. change the left child pointer of a node from one node to another one). Another point in which \ac{CAS} is used is when we need to change the \emph{Update} field of a node, and here is where the problem comes out: in the algorithm they \ac{CAS} a record composed by two field (state and info), but in Java there is not this possibility. So instead of using a simple reference I use an \emph{AtomicReference$<$Update$>$}. At the beginning of the functions that use the \ac{CAS} on that field (i.e. insert or delete) I copy the reference on a local variable (a sort of \emph{snapshot}, in this way I'm sure that no-one can change it during the execution of the function), and then I \ac{CAS} the current value of the field with the \emph{snapshot} that I took before.
   \item \textbf{TreeThread class} I use this class in order to give a sequence of operations to the threads. The list of operations are passed by parameters in form of a tuple $<$action, value$>$ (i.e. $<$insert, 4 $>$). When a thread completes all the operations, it exits.
@@ -192,24 +197,31 @@ This function takes in input a key and it delete the corresponding leaf from the
   \item Otherwise, it attempts to set the flag of the grandparent to ``DFLAG'' 
     \begin{compactitem}
       \item If this fails, it helps the operation that has flagged or marked the grandparent, if any, and then begins a new attempt
-      \item If the ``DFLAG'' is successful, it tries to complete the deletion.
+      \item If the ``DFLAG'' is successful, then it attempts to set the flag of the parent to ``MARK''
+      \begin{compactitem}
+        \item If it is successful, it completes the deletion
+        \item Otherwise backtrack and restart the procedure
+      \end{compactitem}
     \end{compactitem}
 \end{compactitem}
 
-In the delete function we have to ``DFLAG'' the grandparent of the node, and ``MARK'' the parent of the node. Due to the fact that this 2 steps may be not being executed sequentially, what could happens is that the first step is completed correctly and second one fails (because for example another process changes the state of the parent). So, in this case, there is the possibility to reset the state of the grandparent from ``DFLAG'' to ``CLEAN'' and restart again all the procedure.
+In the delete function we have to ``DFLAG'' the grandparent of the node, and ``MARK'' the parent of the node. Due to the fact that this 2 steps may be not being executed sequentially, what could happens is that the first step is completed correctly and second one fails (because for example another process changes the state of the parent). So, in this case, there is the possibility to reset the state of the grandparent from ``DFLAG'' to ``CLEAN'' and restart again all the procedure (backtrack).
 
 % section implementation (end)
 
 \section{Javadoc}
 \label{sec:javadoc}
+In the root of the project there is a directory \emph{Javadoc\footnote{For the documentation and more information see \url{http://www.oracle.com/technetwork/articles/java/index-137868.html}}} containing the API documentation in \emph{HTML} format.
+Each class and method's working principles are described in detail, so for all the functions that I don't explain in this paper, or to see them in more details, refers to it.
 
+% section javadoc (end)
 
 \section{Test}
 \label{sec:test}
 
-% section program_evaluation (end)
 
-\section{Conclusions and further works}
+% section test (end)
+
 \label{sec:conclusions}
 
 
