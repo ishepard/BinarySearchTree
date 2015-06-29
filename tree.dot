@@ -1,16 +1,16 @@
 digraph graphname {
 2147483647 -> 2147483646;
-2147483646 -> 10;
-10 -> 7;
+2147483646 -> 11;
+11 -> 7;
 7 -> "Leaf 3";
 "Leaf 3"	[label=3, shape=box, regular=1, color="blue"];
 7 -> "Leaf 7";
 "Leaf 7"	[label=7, shape=box, regular=1, color="blue"];
-10 -> 20;
-20 -> 15;
+11 -> 15;
 15 -> "Leaf 11";
 "Leaf 11"	[label=11, shape=box, regular=1, color="blue"];
-15 -> "Leaf 15";
+15 -> 20;
+20 -> "Leaf 15";
 "Leaf 15"	[label=15, shape=box, regular=1, color="blue"];
 20 -> 35;
 35 -> "Leaf 33";

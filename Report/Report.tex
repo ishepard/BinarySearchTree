@@ -51,7 +51,7 @@
 A non-blocking \ac{BST} is a binary search tree in which the three operations Find(key), Insert(key), and Delete(key) maybe invoked by concurrent threads.
 
 The goal of this project is to implement a \ac{BST} in Java using the algorithm described in \cite{algorithm}. 
-This algorithm is \emph{non-blocking} (starting from any configuration of any infinite asynchronous execution, with any number of crash failures, some operation always completes) and \emph{linearizable}. The full (and lengthy) proof of correctness appears in \cite{proof}.
+This algorithm is \emph{non-blocking} (starting from any configuration of any infinite asynchronous execution, with any number of crash failures, some operation always completes) and \emph{linearizable}.
 
 \section{Usage} % (fold)
 \label{sec:usage}
@@ -67,6 +67,8 @@ To run it, go in the \emph{bin} directory and digit:
 \\
 \noindent
 In the configuration that is used there are \textbf{5 threads}, concurrently performing 15 insert, 10 delete and 10 find.
+
+% section usage (end)
 
 \section{Output}
 \label{sec:output}
@@ -86,59 +88,8 @@ To build the graph starting from the \emph{dot} file, open the terminal in the r
 and then open \emph{binarytree.png}. 
 
 In order to obtain a better result, in the command above I used an external script \emph{tree.gv} that enforces the horizontal node ordering.\footnote{All credits of this script goes to \emph{Emden R. Gansner}, script available at \url{https://mailman.research.att.com/pipermail/graphviz-interest/2010q2/007101.html}}
-% \begin{compactitem}
-%   \item \textbf{Thread 0}
-%     \begin{compactitem}
-%       \item insert 1
-%       \item delete 1
-%       \item insert 2
-%       \item insert 7
-%       \item find 15
-%       \item delete 18
-%     \end{compactitem}
-%   \item \textbf{Thread 1}
-%     \begin{compactitem}
-%       \item insert 8
-%       \item insert 3
-%       \item delete 2
-%       \item find 11
-%       \item delete 1
-%       \item find 1
-%       \item find 20
-%     \end{compactitem}
-%   \item \textbf{Thread 2}
-%     \begin{compactitem}
-%       \item insert 10
-%       \item insert 20
-%       \item delete 25
-%       \item insert 35
-%       \item insert 40
-%       \item delete 10
-%       \item find 40
-%     \end{compactitem}
-%   \item \textbf{Thread 3}
-%     \begin{compactitem}
-%       \item insert 11
-%       \item find 8
-%       \item insert 22
-%       \item insert 33
-%       \item find 15
-%       \item delete 44
-%       \item delete 22
-%       \item find 22
-%     \end{compactitem}
-%   \item \textbf{Thread 4}
-%     \begin{compactitem}
-%       \item insert 15
-%       \item find 11
-%       \item insert 25
-%       \item insert 35
-%       \item delete 25
-%       \item delete 20
-%       \item find 8
-%     \end{compactitem}
-% \end{compactitem}
-% section usage (end)
+
+% section output (end)
 
 \section{Implementation} % (fold)
 \label{sec:implementation}
@@ -181,7 +132,7 @@ This function takes in input a key, and it uses the \emph{search} method to trav
 This function takes in input a key and it inserts a new leaf in the tree with that key. The main steps are the following:
 \begin{compactitem}
   \item First of all it checks if the key already exists (duplicated keys are not admitted in the search tree)
-  \item It checks if there are other pending operations on the same nodes that he needs to operate on, in this case it tries to complete them, otherwise it builds a new structure with the key. 
+  \item It checks if there are other pending operations on the same nodes that it needs to operate on, in this case it tries to complete them, otherwise it builds a new structure with the key. 
   \item After that it tries to change the state of its parent to ``IFLAG'' (inform other processes that an insert is being performed)
   \begin{compactitem}
     \item If it fails, it helps the operation that has flagged or marked the parent, if any, and begins a new attempt.
@@ -218,13 +169,61 @@ Each class and method's working principles are described in detail, so for all t
 
 \section{Test}
 \label{sec:test}
+In order to test the system, I run the program with different configurations and I checked if the resulting tree was consistent w.r.t. the order of the completed operations (i.e. if there is a successful ``insert 5'' and then a successful ``delete 5'', in the final tree there must not be ``leaf 5'' unless another thread re-insert the value). An example could be the following:
+\begin{compactitem}
+  \item Thread-0 operations: 
+    \begin{compactitem}
+      \item insert 1
+      \item insert 2
+      \item find 2
+      \item delete 8
+    \end{compactitem}
+  \item Thread-1 operations:
+    \begin{compactitem}
+      \item insert 8
+      \item delete 2
+      \item find 1
+      \item delete 1
+    \end{compactitem}
+\end{compactitem}
+
+In this configuration there are only 2 threads and 8 operations. One possible program output is:
+\noindent\rule{\textwidth}{1pt}
+\begin{verbatim}
+Thread-1 trying to insert 8
+Thread-0 trying to insert 1
+Thread-1 inserted correctly key 8
+Thread-1 trying to deleting 2
+Thread-0 failed the iflag CAS; let's help the operation that caused failure
+Thread-1 didn't find key 2
+Thread-0 inserted correctly key 1
+Thread-0 trying to insert 2
+Thread-1 trying to find 1
+Thread-0 inserted correctly key 2
+Thread-0 trying to find 2
+Thread-1 has found key 1
+Thread-0 has found key 2
+Thread-1 trying to deleting 1
+Thread-0 trying to deleting 8
+Thread-1 deleted correctly key 1
+Thread-0 deleted correctly key 8
+All the threads have finished their operations. Printing the tree...
+Node(2147483647, Node(2147483646, Leaf 2, Leaf 2147483646), Leaf 2147483647)
+\end{verbatim}
+\noindent\rule{\textwidth}{1pt}
+
+In the resulting tree there is only the \emph{leaf 2} (and 2 ``fake'' nodes created just for handle initial cases, as described in the algorithm). Notice that this is one of the possible solutions, in fact while the order of the operations inside a thread must be respected (i.e. thread-0 has to insert 1 before it can insert 2), the order of the operations of different threads could happen in various ways. Another possible solution of this scenario is the one in which \emph{thread-0} inserts 2 before \emph{thread-1} deletes 2, so in the resulting tree there will not be the \emph{leaf 2}.
 
 
 % section test (end)
+\section{Final Considerations}
+\label{sec:final_considerations}
 
-\label{sec:conclusions}
+This implementation does not use ``lock'', indeed is non-blocking, but the ``state'' field is actually acting as a lock for the child pointers of the node. In fact, when a thread marks a node as ``IFLAG'' (or ``DLFAG''), what it actually does is take a lock on that node. In this way other threads can not complete their operation if the marked node is involved, instead they have to help the other thread to complete its operation.
 
+Notice that non-blocking does not imply starvation-free, in fact what could happen is that one thread is blocked forever trying to insert a new node, while another thread continuously inserts and removes its parent. This scenario satisfies the non-blocking requirement, in fact there is an infinite execution that always succeed, the one that continuously does insert and remove.
 
+In \cite{algorithm} there is an entire section that explain why this algorithm is correct, and in \cite{proof} there is also the formal proof. My implementation as explained in Sec.[\ref{sec:implementation}] respect step by step the algorithm, so the same proof can be applied to it. In my opinion, and very informally, this implementation works thanks also to this ``helping mechanism'': when a thread has to compute some operations, it appends also a structure with enough information so that another thread can complete the operation. In this way, if a thread crashes or is stuck, other processes can help it to complete and then continue on their operations. Thanks to this mechanism, and also to the ``fake'' lock explained at the beginning of this section, in which we ensure that no-one inserts or deletes a node which is being modified by some other threads, the result is that we have obtained a non-blocking \ac{BST}.
 % section conclusions (end)
 
 \bibliographystyle{plain}

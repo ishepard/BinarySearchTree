@@ -29,7 +29,7 @@ class SearchResult{
  * with any number of crash failures, some operation always completes. 
  * There are also two possibilities to print the tree:
  * 1) OCaml syntax;
- * 2) dot format;
+ * 2) Dot format;
  * 
  * @author Spadini Davide
  * @version 1
