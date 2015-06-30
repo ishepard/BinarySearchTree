@@ -33,7 +33,7 @@ public class Main {
 
 	public static void main(String[] args) throws InterruptedException {
 		BinarySearchTree bst = new BinarySearchTree();
-
+		
 		List<Actions> list_t1 = new ArrayList<Actions>();
 		list_t1.add(new Actions("insert", 1));
 		list_t1.add(new Actions("delete", 1));
@@ -69,7 +69,7 @@ public class Main {
 		list_t4.add(new Actions("delete", 44));
 		list_t4.add(new Actions("delete", 22));
 		list_t4.add(new Actions("find", 22));
-
+		
 		List<Actions> list_t5 = new ArrayList<Actions>();
 		list_t5.add(new Actions("insert", 15));
 		list_t5.add(new Actions("find", 11));

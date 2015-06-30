@@ -48,7 +48,7 @@
 
 
 \section{Introduction}\label{introduction}
-A non-blocking \ac{BST} is a binary search tree in which the three operations Find(key), Insert(key), and Delete(key) maybe invoked by concurrent threads.
+A non-blocking \ac{BST} is a binary search tree in which the three operations Find(key), Insert(key), and Delete(key) may be invoked by concurrent threads.
 
 The goal of this project is to implement a \ac{BST} in Java using the algorithm described in \cite{algorithm}. 
 This algorithm is \emph{non-blocking} (starting from any configuration of any infinite asynchronous execution, with any number of crash failures, some operation always completes) and \emph{linearizable}.
@@ -94,7 +94,8 @@ In order to obtain a better result, in the command above I used an external scri
 \section{Implementation} % (fold)
 \label{sec:implementation}
 As explained before, the aim of this project is to give an implementation of a non-blocking \ac{BST} using the algorithm described in \cite{algorithm}, so I will not discuss the algorithm but only the implementation of it.
-It follows step by step the algorithm, it has the same classes and methods. The only differences or extra method that I implemented are explained in Sec.[\ref{subsec:implementation_details}].
+
+It follows the algorithm step by step and it has the same classes and methods. The only differences or extra methods that I implemented are explained in Sec.[\ref{subsec:implementation_details}].
 
 \noindent
 The main classes are the following:
@@ -102,38 +103,38 @@ The main classes are the following:
   \item \textbf{Leaf} The node with the key
   \item \textbf{Internal} The node used to traverse the tree
   \item \textbf{Update} Contains the state of the node and an \emph{Info} record.
-  \item \textbf{IInfo} When an insert is performed, the thread create an IInfo record in order to save enough information so that another thread that encounters the flagged node can complete the operation
+  \item \textbf{IInfo} When an insert is performed, the thread creates an IInfo record in order to save enough information so that another thread that encounters the flagged node can complete the operation
   \item \textbf{DInfo} The same as the IInfo, just for the delete function
   \item \textbf{BinarySearchTree} The real program, contains all the functions of the \ac{BST}
-  \item \textbf{Main} The main of the program. In this class are instantiated 5 threads and 1 \ac{BST}
+  \item \textbf{Main} The main of the program. In this class 5 threads and 1 \ac{BST} are instantiated.
 \end{compactitem}
 
 \noindent
 
-Furthermore there are minor class, but for more information I remind the reader to Sec.[\ref{sec:javadoc}]
+Furthermore there are minor classes, but for more information I remind the reader to Sec.[\ref{sec:javadoc}]
 
 \subsection{Implementation Details}
 \label{subsec:implementation_details}
 \begin{itemize}
-  \item \textbf{\ac{CAS}} The non-blocking algorithm uses \ac{CAS}\footnote{for more details see \url{https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/atomic/AtomicReference.html}} in order to update atomically some information (i.e. change the left child pointer of a node from one node to another one). Another point in which \ac{CAS} is used is when we need to change the \emph{Update} field of a node, and here is where the problem comes out: in the algorithm they \ac{CAS} a record composed by two field (state and info), but in Java there is not this possibility. So instead of using a simple reference I use an \emph{AtomicReference$<$Update$>$}. At the beginning of the functions that use the \ac{CAS} on that field (i.e. insert or delete) I copy the reference on a local variable (a sort of \emph{snapshot}, in this way I'm sure that no-one can change it during the execution of the function), and then I \ac{CAS} the current value of the field with the \emph{snapshot} that I took before.
-  \item \textbf{TreeThread class} I use this class in order to give a sequence of operations to the threads. The list of operations are passed by parameters in form of a tuple $<$action, value$>$ (i.e. $<$insert, 4 $>$). When a thread completes all the operations, it exits.
-  \item \textbf{Output in OCaml syntax} In order to print the tree with this syntax, I use the \emph{toString()} function recursively from the \emph{Root} until the leafs. The implementation is simply:
+  \item \textbf{\ac{CAS}} The non-blocking algorithm uses \ac{CAS}\footnote{for more details see \url{https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/atomic/AtomicReference.html}} in order to update atomically some information (i.e. change the left child pointer of a node from one node to another one). Another point in which \ac{CAS} is used is when we need to change the \emph{Update} field of a node, and here is where the problem comes out: in the algorithm they \ac{CAS} at the same time two fields (state and info), but in Java there is not this possibility. Using two different \emph{AtomicReference} (one for the state record and another one for the info record) would not be correct because in this way the two \ac{CAS} would not be executed atomically. So I use an \emph{AtomicReference$<$Update$>$}: at the beginning of the functions that use the \ac{CAS} on that field (i.e. insert or delete) I copy the reference on a local variable (a sort of \emph{snapshot}, in this way I'm sure that no-one can change it during the execution of the function), and then I \ac{CAS} the current value of the field with the \emph{snapshot} that I took before.
+  \item \textbf{TreeThread class} I use this class in order to give a sequence of operations to the threads. The list of operations is passed by parameters in form of a tuple $<$action, value$>$ (i.e. $<$insert, 4 $>$). When a thread completes all the operations, it exits.
+  \item \textbf{Output in OCaml syntax} In order to print the tree with this syntax, I use the \emph{toString()} function recursively from the \emph{Root} until the leaves. The implementation is simply:
 
   \verb|Node(key , left.toString(), right.toString())|
-  \item \textbf{Dot format} There is a function \emph{toDot()} which writes the tree according to the dot format in an external file \emph{tree.dot}. This function is recursive, and it is called starting from the root. The result is a directed graph, in which the internal nodes are represented by black circles, and the leafs are represented by blue squares.
+  \item \textbf{Dot format} There is a function \emph{toDot()} which writes the tree according to the dot format in an external file \emph{tree.dot}. This function is recursive, and it is called starting from the root. The result is a directed graph, in which the internal nodes are represented by black circles, and the leaves are represented by blue squares.
 \end{itemize}
 \noindent
 All the other functions are the identical representation in Java of the algorithm desribed in \cite{algorithm}. In the next sections we will briefly see them, for a complete overview see the Javadoc in Sec.[\ref{sec:javadoc}]. 
 
 \subsection{Find}
-This function takes in input a key, and it uses the \emph{search} method to traverse the tree searching for the leaf with that key. If this leaf exists return it, otherwise return \emph{null}.
+This function takes a key in input, and it uses the \emph{search} method to traverse the tree looking for the leaf with that key. If this leaf exists the function returns it, otherwise it returns \emph{null}.
 
 \subsection{Insert}
-This function takes in input a key and it inserts a new leaf in the tree with that key. The main steps are the following:
+This function takes a key in input and it inserts a new leaf in the tree with that key. The main steps are the following:
 \begin{compactitem}
   \item First of all it checks if the key already exists (duplicated keys are not admitted in the search tree)
-  \item It checks if there are other pending operations on the same nodes that it needs to operate on, in this case it tries to complete them, otherwise it builds a new structure with the key. 
-  \item After that it tries to change the state of its parent to ``IFLAG'' (inform other processes that an insert is being performed)
+  \item It checks if there are other pending operations on the same nodes on which it needs to operate, in this case it tries to complete them, otherwise it builds a new structure with the key. 
+  \item After that it tries to change the state of its parent to ``IFLAG'' (to inform other processes that an insert is going to be performed)
   \begin{compactitem}
     \item If it fails, it helps the operation that has flagged or marked the parent, if any, and begins a new attempt.
     \item If it succeeds, it completes the insertion.
@@ -141,10 +142,10 @@ This function takes in input a key and it inserts a new leaf in the tree with th
 \end{compactitem}
 
 \subsection{Delete}
-This function takes in input a key and it delete the corresponding leaf from the tree. The main steps are the following:
+This function takes a key in input and it deletes the corresponding leaf from the tree. The main steps are the following:
 \begin{compactitem}
-  \item First calls the \emph{search} method to find the leaf to be deleted, if it fails returns False.
-  \item If some other operation has already flagged or marked the parent or grandparent, it helps that operation complete and then begins over with a new attempt.
+  \item First it calls the \emph{search} method to find the leaf to be deleted, if it fails returns False.
+  \item If some other operations have already flagged or marked the parent or grandparent, it helps that operation complete and then begins over with a new attempt.
   \item Otherwise, it attempts to set the flag of the grandparent to ``DFLAG'' 
     \begin{compactitem}
       \item If this fails, it helps the operation that has flagged or marked the grandparent, if any, and then begins a new attempt
@@ -156,20 +157,20 @@ This function takes in input a key and it delete the corresponding leaf from the
     \end{compactitem}
 \end{compactitem}
 
-In the delete function we have to ``DFLAG'' the grandparent of the node, and ``MARK'' the parent of the node. Due to the fact that this 2 steps may be not being executed sequentially, what could happens is that the first step is completed correctly and second one fails (because for example another process changes the state of the parent). So, in this case, there is the possibility to reset the state of the grandparent from ``DFLAG'' to ``CLEAN'' and restart again all the procedure (backtrack).
+In the delete function we have to ``DFLAG'' the grandparent of the node, and ``MARK'' the parent of the node. Due to the fact that this two steps may not be executed sequentially, what could happen is that the first step is completed correctly and the second one fails (because for example another process changes the state of the parent). So, in this case, it has to reset the state of the grandparent from ``DFLAG'' to ``CLEAN'' and restart again the whole procedure (backtrack).
 
 % section implementation (end)
 
 \section{Javadoc}
 \label{sec:javadoc}
 In the root of the project there is a directory \emph{Javadoc\footnote{For the documentation and more information see \url{http://www.oracle.com/technetwork/articles/java/index-137868.html}}} containing the API documentation in \emph{HTML} format.
-Each class and method's working principles are described in detail, so for all the functions that I don't explain in this paper, or to see them in more details, refers to it.
+Each class and method's working principles are described in detail, so to see all the functions, including those that I didn't explain in this paper, refers to it.
 
 % section javadoc (end)
 
 \section{Test}
 \label{sec:test}
-In order to test the system, I run the program with different configurations and I checked if the resulting tree was consistent w.r.t. the order of the completed operations (i.e. if there is a successful ``insert 5'' and then a successful ``delete 5'', in the final tree there must not be ``leaf 5'' unless another thread re-insert the value). An example could be the following:
+In order to test the system, I launched the program with different configurations and I checked if the resulting tree was consistent w.r.t. the order of the completed operations (i.e. if there is a successful ``insert 5'' and then a successful ``delete 5'', in the final tree there must not be ``leaf 5'' unless another thread re-insert the value). An example could be the following:
 \begin{compactitem}
   \item Thread-0 operations: 
     \begin{compactitem}
@@ -212,18 +213,18 @@ Node(2147483647, Node(2147483646, Leaf 2, Leaf 2147483646), Leaf 2147483647)
 \end{verbatim}
 \noindent\rule{\textwidth}{1pt}
 
-In the resulting tree there is only the \emph{leaf 2} (and 2 ``fake'' nodes created just for handle initial cases, as described in the algorithm). Notice that this is one of the possible solutions, in fact while the order of the operations inside a thread must be respected (i.e. thread-0 has to insert 1 before it can insert 2), the order of the operations of different threads could happen in various ways. Another possible solution of this scenario is the one in which \emph{thread-0} inserts 2 before \emph{thread-1} deletes 2, so in the resulting tree there will not be the \emph{leaf 2}.
+In the resulting tree there is only the \emph{leaf 2} (and two ``fake'' nodes created just to handle initial cases, as described in the algorithm). Notice that this is one of the possible solutions, in fact while the order of the operations inside a thread must be respected (i.e. thread-0 has to insert 1 before it can insert 2), the order of the operations of different threads can occur in various ways. Another possible solution of this scenario is the one in which \emph{thread-0} inserts 2 before \emph{thread-1} deletes 2, so in the resulting tree there will not be the \emph{leaf 2}.
 
 
 % section test (end)
-\section{Final Considerations}
+\section{Final Remarks}
 \label{sec:final_considerations}
 
-This implementation does not use ``lock'', indeed is non-blocking, but the ``state'' field is actually acting as a lock for the child pointers of the node. In fact, when a thread marks a node as ``IFLAG'' (or ``DLFAG''), what it actually does is take a lock on that node. In this way other threads can not complete their operation if the marked node is involved, instead they have to help the other thread to complete its operation.
+This implementation does not use lock but the ``state'' field is actually acting as a lock for the child pointers of the node. In fact, when a thread marks a node as ``IFLAG'' (or ``DLFAG''), what it actually does is taking a lock on that node. In this way other threads can not complete their operation if the marked node is involved, but they have to help the other thread to complete its operation instead.
 
-Notice that non-blocking does not imply starvation-free, in fact what could happen is that one thread is blocked forever trying to insert a new node, while another thread continuously inserts and removes its parent. This scenario satisfies the non-blocking requirement, in fact there is an infinite execution that always succeed, the one that continuously does insert and remove.
+Notice that non-blocking does not imply starvation-free, in fact what could happen is that one thread is blocked forever trying to insert a new node, while another thread continuously inserts and removes its parent. This scenario satisfies the non-blocking requirement, in fact there is an infinite execution that always succeeds: the one that continuously does insert and remove.
 
-In \cite{algorithm} there is an entire section that explain why this algorithm is correct, and in \cite{proof} there is also the formal proof. My implementation as explained in Sec.[\ref{sec:implementation}] respect step by step the algorithm, so the same proof can be applied to it. In my opinion, and very informally, this implementation works thanks also to this ``helping mechanism'': when a thread has to compute some operations, it appends also a structure with enough information so that another thread can complete the operation. In this way, if a thread crashes or is stuck, other processes can help it to complete and then continue on their operations. Thanks to this mechanism, and also to the ``fake'' lock explained at the beginning of this section, in which we ensure that no-one inserts or deletes a node which is being modified by some other threads, the result is that we have obtained a non-blocking \ac{BST}.
+In \cite{algorithm} there is an entire section that explains why this algorithm is correct, and in \cite{proof} there is also the formal proof. My implementation, as explained in Sec.[\ref{sec:implementation}], follows the algorithm step by step, so the same proof can be applied to it. In my opinion this implementation works thanks also to this ``helping mechanism'': when a thread has to execute some operations, it also appends a structure with enough information so that another thread can complete the operation. In this way, if a thread crashes or is stuck, other processes can help it to complete and then continue on their operations. Thanks to this mechanism and also to the ``fake'' lock explained at the beginning of this section, in which we ensure that no-one inserts or deletes a node which is being modified by some other threads, we have obtained a non-blocking \ac{BST}.
 % section conclusions (end)
 
 \bibliographystyle{plain}

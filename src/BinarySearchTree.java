@@ -24,7 +24,7 @@ class SearchResult{
 
 /**
  * BinarySearchTree class is the main class of our concurrent Binary Search Tree.
- * It provides three principle methods: find(key), insert(key), delete(key). This implementation 
+ * It provides three main methods: find(key), insert(key), delete(key). This implementation 
  * is non-blocking: starting from any configuration of any infinite asynchronous execution, 
  * with any number of crash failures, some operation always completes. 
  * There are also two possibilities to print the tree:
@@ -343,7 +343,7 @@ public class BinarySearchTree {
 	public void createDotGraph(){
 		PrintWriter out = null;
 		try {
-			out = new PrintWriter("tree.dot");
+			out = new PrintWriter("../tree.dot");
 			out.write("digraph graphname {\n");
 			toDot(Root, out);
 			out.write("}");
