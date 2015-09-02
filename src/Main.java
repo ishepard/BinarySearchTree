@@ -7,7 +7,7 @@ import java.util.List;
  * - String action: one of "insert", "delete", "find"
  * - int value: value of the key
  * 
- * @author shepard
+ * @author Davide Spadini
  *
  */
 class Actions {

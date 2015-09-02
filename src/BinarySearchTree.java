@@ -3,7 +3,7 @@ import java.io.PrintWriter;
 /**
  * Class used by the search method to save the result.
  * 
- * @author shepard
+ * @author Davide Spadini
  *
  */
 class SearchResult{
@@ -31,7 +31,7 @@ class SearchResult{
  * 1) OCaml syntax;
  * 2) Dot format;
  * 
- * @author Spadini Davide
+ * @author Davide Spadini
  * @version 1
  */
 
@@ -286,7 +286,7 @@ public class BinarySearchTree {
 		
 		// mark the parent
 		boolean cas_result = op.p.update.compareAndSet(op.pupdate, new_update_mark);
-		if (cas_result){
+		if (cas_result || op.p.update.get().state == "MARK"){
 			// parent marked correctly, complete the deletion
 			// Tell Delete routine it is done
 			helpMarked(op);
@@ -343,7 +343,7 @@ public class BinarySearchTree {
 	public void createDotGraph(){
 		PrintWriter out = null;
 		try {
-			out = new PrintWriter("../tree.dot");
+			out = new PrintWriter("tree.dot");
 			out.write("digraph graphname {\n");
 			toDot(Root, out);
 			out.write("}");

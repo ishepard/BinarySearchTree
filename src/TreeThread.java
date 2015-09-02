@@ -25,7 +25,6 @@ public class TreeThread implements Runnable{
 	public void run(){
 		Thread thread = Thread.currentThread();
 		for(Actions act: actions){
-			// System.out.println("Key is " + act.action + "and value is " + act.value);
 			switch(act.action) {
 			    case "insert":
 			    	System.out.println(thread.getName() + " trying to insert " + act.value);
